@@ -39,12 +39,16 @@ namespace ddacAPI.Controllers
 
             var hotel = await _context.Hotel.FindAsync(id);
 
+            dynamic hotelForAPI = new System.Dynamic.ExpandoObject();
+
+            hotelForAPI.meme = "finally boiii";
+
             if (hotel == null)
             {
                 return NotFound();
             }
 
-            return Ok(hotel);
+            return Ok(hotelForAPI);
         }
 
         // PUT: api/Hotels/5

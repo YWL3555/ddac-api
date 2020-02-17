@@ -22,5 +22,7 @@ namespace ddacAPI.Models
         public string Photo { get; set; }
 
         public string Facilities { get; set; }
+
+        public Boolean Published { get; set; }
     }
 }
