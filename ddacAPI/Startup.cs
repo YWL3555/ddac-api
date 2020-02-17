@@ -12,6 +12,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using ddacAPI.Data;
+using ddacAPI.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace ddacAPI
 {
@@ -31,6 +33,18 @@ namespace ddacAPI
 
             services.AddDbContext<ddacAPIContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("ddacAPIContext")));
+
+            services.AddDefaultIdentity<Customer>()
+                .AddEntityFrameworkStores<ddacAPIContext>();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 4;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +61,7 @@ namespace ddacAPI
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            app.UseAuthentication();
         }
     }
 }

@@ -41,6 +41,8 @@ namespace ddacAPI.Controllers
 
             dynamic hotelForAPI = new System.Dynamic.ExpandoObject();
 
+            hotelForAPI.hotel = hotel;
+            
             hotelForAPI.meme = "finally boiii";
 
             if (hotel == null)
@@ -48,7 +50,10 @@ namespace ddacAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(hotelForAPI);
+            return Ok(new { 
+                hotel,
+                hotelForAPI
+            });
         }
 
         // PUT: api/Hotels/5

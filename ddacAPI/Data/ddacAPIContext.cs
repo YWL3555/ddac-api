@@ -4,10 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ddacAPI.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ddacAPI.Data
 {
-    public class ddacAPIContext : DbContext
+    public class ddacAPIContext : IdentityDbContext
     {
         public ddacAPIContext (DbContextOptions<ddacAPIContext> options)
             : base(options)
