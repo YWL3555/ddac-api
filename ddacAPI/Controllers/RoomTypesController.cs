@@ -2,22 +2,30 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ddacAPI.Data;
 using ddacAPI.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace ddacAPI.Controllers
 {
+    [Authorize(Roles = "Partner")]
     [Route("api/[controller]")]
     [ApiController]
     public class RoomTypesController : ControllerBase
     {
+        private UserManager<ApplicationUser> _userManager;
+        private SignInManager<ApplicationUser> _signInManager;
         private readonly ddacAPIContext _context;
 
-        public RoomTypesController(ddacAPIContext context)
+        public RoomTypesController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ddacAPIContext context)
         {
+            _userManager = userManager;
+            _signInManager = signInManager;
             _context = context;
         }
 
@@ -49,6 +57,7 @@ namespace ddacAPI.Controllers
 
         // PUT: api/RoomTypes/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Partner")]
         public async Task<IActionResult> PutRoomType([FromRoute] int id, [FromBody] RoomType roomType)
         {
             if (!ModelState.IsValid)
@@ -59,6 +68,13 @@ namespace ddacAPI.Controllers
             if (id != roomType.Id)
             {
                 return BadRequest();
+            }
+            string userId = User.Claims.First(c => c.Type == "UserID").Value;
+            var partner = await _context.Partner.FindAsync(userId);
+
+            if (roomType.HotelId != partner.HotelId)
+            {
+                return Forbid();
             }
 
             _context.Entry(roomType).State = EntityState.Modified;
@@ -84,6 +100,7 @@ namespace ddacAPI.Controllers
 
         // POST: api/RoomTypes
         [HttpPost]
+        [Authorize(Roles = "Partner")]
         public async Task<IActionResult> PostRoomType([FromBody] RoomType roomType)
         {
             if (!ModelState.IsValid)
@@ -91,7 +108,20 @@ namespace ddacAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            _context.RoomType.Add(roomType);
+            string userId = User.Claims.First(c => c.Type == "UserID").Value;
+            var partner = await _context.Partner.FindAsync(userId);
+
+            var roomTypeToBeCreated = new RoomType()
+            {
+                HotelId = partner.HotelId,
+                Name = roomType.Name,
+                Price = roomType.Price,
+                Quantity = roomType.Quantity,
+                Photo = roomType.Photo,
+                MaximumPax = roomType.MaximumPax
+            };
+
+            _context.RoomType.Add(roomTypeToBeCreated);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetRoomType", new { id = roomType.Id }, roomType);

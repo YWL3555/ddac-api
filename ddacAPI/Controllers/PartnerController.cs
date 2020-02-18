@@ -7,10 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using ddacAPI.Data;
 using ddacAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 
 namespace ddacAPI.Controllers
 {
@@ -59,6 +61,22 @@ namespace ddacAPI.Controllers
             else
                 return BadRequest(new { message = "Email or password is incorrect." });
         }
+
+        // GET: api/RoomTypes
+        [HttpGet]
+        [Authorize(Roles = "Partner")]
+        [Route("room-type")]
+        //GET: /api/partner/room-type
+        public async Task<Object> GetRoomTypes()
+        {
+            string userId = User.Claims.First(c => c.Type == "UserID").Value;
+            var partner = await _context.Partner.FindAsync(userId);
+
+            var roomTypes = _context.RoomType.Where(r => r.HotelId == partner.HotelId);
+
+            return roomTypes;
+        }
+
 
 
     }
