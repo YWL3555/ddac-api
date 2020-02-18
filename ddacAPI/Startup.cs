@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Azure;
 
 namespace ddacAPI
 {
@@ -73,6 +74,11 @@ namespace ddacAPI
                     ValidateAudience = false,
                     ClockSkew = TimeSpan.Zero
                 };
+            });
+
+            services.AddAzureClients(builder =>
+            {
+                builder.AddBlobServiceClient(Configuration["ConnectionStrings:ddacAPIContext1"]);
             });
         }
 

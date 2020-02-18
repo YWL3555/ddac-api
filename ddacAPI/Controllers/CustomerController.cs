@@ -7,12 +7,16 @@ using System.Text;
 using System.Threading.Tasks;
 using ddacAPI.Data;
 using ddacAPI.Models;
+using ddacAPI.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.Web;
+using System.IO;
 
 namespace ddacAPI.Controllers
 {
@@ -23,13 +27,17 @@ namespace ddacAPI.Controllers
         private UserManager<ApplicationUser> _userManager;
         private SignInManager<ApplicationUser> _signInManager;
         private readonly ddacAPIContext _context;
+        private static BlobManager _blobManager;
 
-        public CustomerController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ddacAPIContext context)
+        public IConfiguration Configuration { get; }
+
+        public CustomerController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ddacAPIContext context, IConfiguration configuration)
         {
+            Configuration = configuration;
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
-
+            
         }
 
         [HttpPost]
@@ -128,6 +136,43 @@ namespace ddacAPI.Controllers
 
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
             var user = await _userManager.FindByIdAsync(userId);
+
+            _context.Entry(customer).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Customer")]
+        [Route("upload")]
+        //GET: /api/customer/upload
+        public async Task<IActionResult> UploadUserProfilePic(IFormFile newFile)
+        {
+            _blobManager = new BlobManager(Configuration);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            string userId = User.Claims.First(c => c.Type == "UserID").Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var customer = await _context.Customer.FindAsync(userId);
+          
+
+            if (newFile != null)
+            {
+                Stream filestreamFromRequest = newFile.OpenReadStream();
+                customer.ProfilePic = await _blobManager.UploadFileToStorageAsync(filestreamFromRequest, "customer_"+userId.ToString() + ".jpg");
+            } else
+            {
+                return BadRequest();
+            }
+
 
             _context.Entry(customer).State = EntityState.Modified;
             await _context.SaveChangesAsync();

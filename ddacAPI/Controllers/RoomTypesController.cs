@@ -10,6 +10,9 @@ using ddacAPI.Data;
 using ddacAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using ddacAPI.Util;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace ddacAPI.Controllers
 {
@@ -18,12 +21,16 @@ namespace ddacAPI.Controllers
     [ApiController]
     public class RoomTypesController : ControllerBase
     {
+        private readonly ddacAPIContext _context;
+        private static BlobManager _blobManager;
         private UserManager<ApplicationUser> _userManager;
         private SignInManager<ApplicationUser> _signInManager;
-        private readonly ddacAPIContext _context;
 
-        public RoomTypesController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ddacAPIContext context)
+        public IConfiguration Configuration { get; }
+
+        public RoomTypesController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ddacAPIContext context, IConfiguration configuration)
         {
+            Configuration = configuration;
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
@@ -146,6 +153,42 @@ namespace ddacAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(roomType);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Partner")]
+        [Route("upload")]
+        //GET: /api/roomTypes/upload?id=1
+        public async Task<IActionResult> UploadUserProfilePic(int id, IFormFile newFile)
+        {
+            _blobManager = new BlobManager(Configuration);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            int currentRoomTypeId = id;
+
+            var currentRoomType = await _context.RoomType.FindAsync(currentRoomTypeId);
+
+
+            if (newFile != null)
+            {
+                Stream filestreamFromRequest = newFile.OpenReadStream();
+                currentRoomType.Photo = await _blobManager.UploadFileToStorageAsync(filestreamFromRequest, "room_type_"+currentRoomType.Id.ToString() + ".jpg");
+            }
+            else
+            {
+                return BadRequest();
+            }
+
+
+            _context.Entry(currentRoomType).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+
         }
 
         private bool RoomTypeExists(int id)

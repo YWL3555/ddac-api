@@ -7,6 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ddacAPI.Data;
 using ddacAPI.Models;
+using Microsoft.AspNetCore.Authorization;
+using ddacAPI.Util;
+using System.IO;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity;
 
 namespace ddacAPI.Controllers
 {
@@ -15,9 +20,17 @@ namespace ddacAPI.Controllers
     public class HotelsController : ControllerBase
     {
         private readonly ddacAPIContext _context;
+        private static BlobManager _blobManager;
+        private UserManager<ApplicationUser> _userManager;
+        private SignInManager<ApplicationUser> _signInManager;
 
-        public HotelsController(ddacAPIContext context)
+        public IConfiguration Configuration { get; }
+
+        public HotelsController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ddacAPIContext context, IConfiguration configuration)
         {
+            Configuration = configuration;
+            _userManager = userManager;
+            _signInManager = signInManager;
             _context = context;
         }
 
@@ -206,6 +219,44 @@ namespace ddacAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(hotel);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Partner")]
+        [Route("upload")]
+        //GET: /api/hotels/upload
+        public async Task<IActionResult> UploadUserProfilePic(IFormFile newFile)
+        {
+            _blobManager = new BlobManager(Configuration);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            string userId = User.Claims.First(c => c.Type == "UserID").Value;
+
+            var partner = await _context.Partner.FindAsync(userId);
+
+            var hotel = await _context.Hotel.FindAsync(partner.HotelId);
+
+
+            if (newFile != null)
+            {
+                Stream filestreamFromRequest = newFile.OpenReadStream();
+                hotel.Photo = await _blobManager.UploadFileToStorageAsync(filestreamFromRequest, "hotel_"+hotel.Id.ToString() + ".jpg");
+            }
+            else
+            {
+                return BadRequest();
+            }
+
+
+            _context.Entry(hotel).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+
         }
 
         private bool HotelExists(int id)
