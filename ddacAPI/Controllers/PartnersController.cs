@@ -51,7 +51,18 @@ namespace ddacAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(partner);
+            var user = await _userManager.FindByIdAsync(id);
+            var hotel = await _context.Hotel.FindAsync(partner.HotelId);
+            //var hotel = _context.Hotel.Include(i => i.Messages).FirstOrDefaultAsync(i => i.Id == id);
+
+            return Ok( new
+            {
+                user.Email,
+                user.UserName,
+                hotel
+                
+            });
+
         }
 
         // PUT: api/Partners/5
@@ -89,34 +100,6 @@ namespace ddacAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Partners
-        [HttpPost]
-        public async Task<IActionResult> PostPartner([FromBody] Partner partner)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            _context.Partner.Add(partner);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (PartnerExists(partner.Id))
-                {
-                    return new StatusCodeResult(StatusCodes.Status409Conflict);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetPartner", new { id = partner.Id }, partner);
-        }
 
         // DELETE: api/Partners/5
         [HttpDelete("{id}")]
@@ -145,7 +128,6 @@ namespace ddacAPI.Controllers
         }
 
         [HttpPost]
-        [Route("create-partner")]
         //POST : /api/Customer/signup
         public async Task<Object> CreatePartner(UserAuthModel model)
         {
