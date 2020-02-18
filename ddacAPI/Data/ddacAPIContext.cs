@@ -25,6 +25,8 @@ namespace ddacAPI.Data
 
         public DbSet<ddacAPI.Models.RatingReview> RatingReview { get; set; }
 
+        public DbSet<ddacAPI.Models.ApplicationUser> ApplicationUser { get; set; }
+
         public DbSet<ddacAPI.Models.Customer> Customer { get; set; }
 
         public DbSet<ddacAPI.Models.Admin> Admin { get; set; }

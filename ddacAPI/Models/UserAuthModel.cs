@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ddacAPI.Models
 {
-    public class CustomerSignUpModel
+    public class UserAuthModel
     {
 
         public string Username { get; set; }
@@ -13,5 +13,7 @@ namespace ddacAPI.Models
         public string Email { get; set; }
 
         public string Password { get; set; }
+
+        public string Role { get; set; }
     }
 }

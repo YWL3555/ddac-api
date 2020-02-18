@@ -9,20 +9,6 @@ namespace ddacAPI.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Admin",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Email = table.Column<string>(nullable: true),
-                    Password = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Admin", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
@@ -55,10 +41,7 @@ namespace ddacAPI.Migrations
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
-                    Discriminator = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: true),
-                    ContactNumber = table.Column<string>(nullable: true),
-                    ProfilePic = table.Column<string>(nullable: true)
+                    Discriminator = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -114,6 +97,23 @@ namespace ddacAPI.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Admin",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Admin", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Admin_AspNetUsers_Id",
+                        column: x => x.Id,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -204,6 +204,26 @@ namespace ddacAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Customer",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    ContactNumber = table.Column<string>(nullable: true),
+                    ProfilePic = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customer", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Customer_AspNetUsers_Id",
+                        column: x => x.Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Facility",
                 columns: table => new
                 {
@@ -227,11 +247,8 @@ namespace ddacAPI.Migrations
                 name: "Partner",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    HotelId = table.Column<int>(nullable: true),
-                    Username = table.Column<string>(nullable: true),
-                    Password = table.Column<string>(nullable: true)
+                    Id = table.Column<string>(nullable: false),
+                    HotelId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -242,34 +259,12 @@ namespace ddacAPI.Migrations
                         principalTable: "Hotel",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RatingReview",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    CustomerId = table.Column<string>(nullable: true),
-                    Rating = table.Column<int>(nullable: false),
-                    Review = table.Column<string>(nullable: true),
-                    HotelId = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RatingReview", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RatingReview_AspNetUsers_CustomerId",
-                        column: x => x.CustomerId,
+                        name: "FK_Partner_AspNetUsers_Id",
+                        column: x => x.Id,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_RatingReview_Hotel_HotelId",
-                        column: x => x.HotelId,
-                        principalTable: "Hotel",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -317,6 +312,34 @@ namespace ddacAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RatingReview",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    CustomerId = table.Column<string>(nullable: true),
+                    Rating = table.Column<int>(nullable: false),
+                    Review = table.Column<string>(nullable: true),
+                    HotelId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RatingReview", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RatingReview_Customer_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RatingReview_Hotel_HotelId",
+                        column: x => x.HotelId,
+                        principalTable: "Hotel",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Booking",
                 columns: table => new
                 {
@@ -335,9 +358,9 @@ namespace ddacAPI.Migrations
                 {
                     table.PrimaryKey("PK_Booking", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Booking_AspNetUsers_CustomerId",
+                        name: "FK_Booking_Customer_CustomerId",
                         column: x => x.CustomerId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "Customer",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -473,10 +496,13 @@ namespace ddacAPI.Migrations
                 name: "State");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Customer");
 
             migrationBuilder.DropTable(
                 name: "Hotel");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

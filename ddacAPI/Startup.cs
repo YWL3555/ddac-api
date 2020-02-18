@@ -14,6 +14,9 @@ using Microsoft.EntityFrameworkCore;
 using ddacAPI.Data;
 using ddacAPI.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ddacAPI
 {
@@ -34,7 +37,8 @@ namespace ddacAPI
             services.AddDbContext<ddacAPIContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("ddacAPIContext")));
 
-            services.AddDefaultIdentity<Customer>()
+            services.AddDefaultIdentity<ApplicationUser>()
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ddacAPIContext>();
 
             services.Configure<IdentityOptions>(options =>
@@ -44,6 +48,31 @@ namespace ddacAPI
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequiredLength = 4;
+            });
+
+            services.AddCors();
+
+            //Jwt Authentication
+
+            var key = Encoding.UTF8.GetBytes(Configuration["ApplicationSettings:JWT_Secret"].ToString());
+
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = false;
+                x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                };
             });
         }
 
@@ -59,9 +88,16 @@ namespace ddacAPI
                 app.UseHsts();
             }
 
+            app.UseCors(builder =>
+            builder.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            );
+
             app.UseHttpsRedirection();
-            app.UseMvc();
+
             app.UseAuthentication();
+            app.UseMvc();
         }
     }
 }

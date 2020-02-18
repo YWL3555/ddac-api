@@ -21,13 +21,7 @@ namespace ddacAPI.Migrations
 
             modelBuilder.Entity("ddacAPI.Models.Admin", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Email");
-
-                    b.Property<string>("Password");
+                    b.Property<string>("Id");
 
                     b.HasKey("Id");
 
@@ -82,6 +76,21 @@ namespace ddacAPI.Migrations
                     b.ToTable("City");
                 });
 
+            modelBuilder.Entity("ddacAPI.Models.Customer", b =>
+                {
+                    b.Property<string>("Id");
+
+                    b.Property<string>("ContactNumber");
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("ProfilePic");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Customer");
+                });
+
             modelBuilder.Entity("ddacAPI.Models.Facility", b =>
                 {
                     b.Property<int>("Id")
@@ -126,15 +135,9 @@ namespace ddacAPI.Migrations
 
             modelBuilder.Entity("ddacAPI.Models.Partner", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("Id");
 
                     b.Property<int?>("HotelId");
-
-                    b.Property<string>("Password");
-
-                    b.Property<string>("Username");
 
                     b.HasKey("Id");
 
@@ -374,19 +377,22 @@ namespace ddacAPI.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("ddacAPI.Models.Customer", b =>
+            modelBuilder.Entity("ddacAPI.Models.ApplicationUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<string>("ContactNumber");
 
-                    b.Property<string>("Name");
+                    b.ToTable("ApplicationUser");
 
-                    b.Property<string>("ProfilePic");
+                    b.HasDiscriminator().HasValue("ApplicationUser");
+                });
 
-                    b.ToTable("Customer");
-
-                    b.HasDiscriminator().HasValue("Customer");
+            modelBuilder.Entity("ddacAPI.Models.Admin", b =>
+                {
+                    b.HasOne("ddacAPI.Models.ApplicationUser", "User")
+                        .WithOne("Admin")
+                        .HasForeignKey("ddacAPI.Models.Admin", "Id")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ddacAPI.Models.Booking", b =>
@@ -407,6 +413,14 @@ namespace ddacAPI.Migrations
                         .HasForeignKey("StateId");
                 });
 
+            modelBuilder.Entity("ddacAPI.Models.Customer", b =>
+                {
+                    b.HasOne("ddacAPI.Models.ApplicationUser", "User")
+                        .WithOne("Customer")
+                        .HasForeignKey("ddacAPI.Models.Customer", "Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("ddacAPI.Models.Facility", b =>
                 {
                     b.HasOne("ddacAPI.Models.Hotel")
@@ -419,6 +433,11 @@ namespace ddacAPI.Migrations
                     b.HasOne("ddacAPI.Models.Hotel", "Hotel")
                         .WithMany()
                         .HasForeignKey("HotelId");
+
+                    b.HasOne("ddacAPI.Models.ApplicationUser", "User")
+                        .WithOne("Partner")
+                        .HasForeignKey("ddacAPI.Models.Partner", "Id")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ddacAPI.Models.RatingReview", b =>
