@@ -10,7 +10,7 @@ using ddacAPI.Data;
 namespace ddacAPI.Migrations
 {
     [DbContext(typeof(ddacAPIContext))]
-    [Migration("20200218065453_Initial")]
+    [Migration("20200218104517_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

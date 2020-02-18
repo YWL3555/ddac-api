@@ -98,6 +98,7 @@ namespace ddacAPI
 
             app.UseAuthentication();
             app.UseMvc();
+
         }
     }
 }

@@ -18,13 +18,13 @@ namespace ddacAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CustomerController : ControllerBase
+    public class AdminController : ControllerBase
     {
         private UserManager<ApplicationUser> _userManager;
         private SignInManager<ApplicationUser> _signInManager;
         private readonly ddacAPIContext _context;
 
-        public CustomerController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ddacAPIContext context)
+        public AdminController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ddacAPIContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -32,35 +32,6 @@ namespace ddacAPI.Controllers
 
         }
 
-        [HttpPost]
-        [Route("signup")]
-        //POST : /api/Customer/signup
-        public async Task<Object> PostCustomer(UserAuthModel model)
-        {
-            model.Role = "Customer";
-            var customerToSignup = new ApplicationUser()
-            {
-                UserName = model.Username,
-                Email = model.Email,
-                Customer = new Customer()
-                {
-                    Name = model.Username
-                }
-
-            };
-
-            try
-            {
-                var result = await _userManager.CreateAsync(customerToSignup, model.Password);
-                await _userManager.AddToRoleAsync(customerToSignup, model.Role);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-        }
 
         [HttpPost]
         [Route("login")]
@@ -70,6 +41,8 @@ namespace ddacAPI.Controllers
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
+
+
                 //Get role assigned to the user
                 var role = await _userManager.GetRolesAsync(user);
                 IdentityOptions _options = new IdentityOptions();

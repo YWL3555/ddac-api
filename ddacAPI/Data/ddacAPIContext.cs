@@ -36,5 +36,6 @@ namespace ddacAPI.Data
         public DbSet<ddacAPI.Models.City> City { get; set; }
 
         public DbSet<ddacAPI.Models.State> State { get; set; }
+
     }
 }
