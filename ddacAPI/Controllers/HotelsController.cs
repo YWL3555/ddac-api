@@ -25,7 +25,9 @@ namespace ddacAPI.Controllers
         [HttpGet]
         public IEnumerable<Hotel> GetHotel()
         {
-            return _context.Hotel;
+            var hotels = _context.Hotel.Where(h => h.Published == true);
+
+            return hotels;
         }
 
         // GET: api/Hotels/5
@@ -69,6 +71,85 @@ namespace ddacAPI.Controllers
             {
                 return BadRequest();
             }
+
+            _context.Entry(hotel).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!HotelExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // PUT: api/Hotels/publish?id=1
+        [HttpPut("publish")]
+        public async Task<IActionResult> PublishHotel([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+
+            var hotel = await _context.Hotel.FindAsync(id);
+
+            if (hotel == null)
+            {
+                return NotFound();
+            }
+
+            hotel.Published = true;
+
+            _context.Entry(hotel).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!HotelExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // PUT: api/Hotels/publish?id=1
+        [HttpPut("unpublish")]
+        public async Task<IActionResult> UnpublishHotel([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var hotel = await _context.Hotel.FindAsync(id);
+
+            if (hotel == null)
+            {
+                return NotFound();
+            }
+
+            hotel.Published = true;
 
             _context.Entry(hotel).State = EntityState.Modified;
 

@@ -104,7 +104,7 @@ namespace ddacAPI.Controllers
         // POST: api/Booking/cancel?id=1
         [HttpPut("cancel")]
         [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> CancelBooking(int id, [FromBody] Booking booking)
+        public async Task<IActionResult> CancelBooking(int id)
         {
             if (!ModelState.IsValid)
             {
@@ -114,6 +114,13 @@ namespace ddacAPI.Controllers
             int currentBookingId = id;
 
             string currentCustomerId = User.Claims.First(c => c.Type == "UserID").Value;
+
+            var booking = await _context.Booking.FindAsync(currentBookingId);
+
+            if (booking == null)
+            {
+                return NotFound();
+            }
 
             if (booking.CustomerId != currentCustomerId)
             {
@@ -144,10 +151,10 @@ namespace ddacAPI.Controllers
             return Ok();
         }
 
-        // POST: api/Booking/cancel?id=1
+        // POST: api/Booking/reviewed?id=1
         [HttpPut("reviewed")]
         [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> ReviewedBooking(int id, [FromBody] Booking booking)
+        public async Task<IActionResult> ReviewedBooking(int id)
         {
             if (!ModelState.IsValid)
             {
@@ -157,6 +164,13 @@ namespace ddacAPI.Controllers
             int currentBookingId = id;
 
             string currentCustomerId = User.Claims.First(c => c.Type == "UserID").Value;
+
+            var booking = await _context.Booking.FindAsync(currentBookingId);
+
+            if (booking == null)
+            {
+                return NotFound();
+            }
 
             if (booking.CustomerId != currentCustomerId)
             {
