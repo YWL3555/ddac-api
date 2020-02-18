@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ddacAPI.Data;
 using ddacAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace ddacAPI.Controllers
 {
@@ -16,10 +17,14 @@ namespace ddacAPI.Controllers
     [ApiController]
     public class PartnersController : ControllerBase
     {
+        private UserManager<ApplicationUser> _userManager;
+        private SignInManager<ApplicationUser> _signInManager;
         private readonly ddacAPIContext _context;
 
-        public PartnersController(ddacAPIContext context)
+        public PartnersController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ddacAPIContext context)
         {
+            _userManager = userManager;
+            _signInManager = signInManager;
             _context = context;
         }
 
@@ -137,6 +142,39 @@ namespace ddacAPI.Controllers
         private bool PartnerExists(string id)
         {
             return _context.Partner.Any(e => e.Id == id);
+        }
+
+        [HttpPost]
+        [Route("create-partner")]
+        //POST : /api/Customer/signup
+        public async Task<Object> CreatePartner(UserAuthModel model)
+        {
+            model.Role = "Partner";
+            var partnerToBeCreated = new ApplicationUser()
+            {
+                UserName = model.Username,
+                Email = model.Email,
+                Partner = new Partner()
+                {
+                    Hotel = new Hotel()
+                    {
+                        Name = model.HotelName
+                    }
+                }
+
+            };
+
+            try
+            {
+                var result = await _userManager.CreateAsync(partnerToBeCreated, model.Password);
+                await _userManager.AddToRoleAsync(partnerToBeCreated, model.Role);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
     }
 }

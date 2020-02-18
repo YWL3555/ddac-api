@@ -42,9 +42,13 @@ namespace ddacAPI.Controllers
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
 
-
                 //Get role assigned to the user
-                var role = await _userManager.GetRolesAsync(user);
+                //var role = await _userManager.GetRolesAsync(user);
+                //if (role == null)
+                //{
+                //    await _userManager.AddToRoleAsync(user, "Admin");
+                    //role = await _userManager.GetRolesAsync(user);
+                //}
                 IdentityOptions _options = new IdentityOptions();
 
                 var tokenDescriptor = new SecurityTokenDescriptor
@@ -52,7 +56,7 @@ namespace ddacAPI.Controllers
                     Subject = new ClaimsIdentity(new Claim[]
                     {
                         new Claim("UserID",user.Id.ToString()),
-                        new Claim(_options.ClaimsIdentity.RoleClaimType,role.FirstOrDefault())
+                        new Claim(_options.ClaimsIdentity.RoleClaimType, "Admin")
                     }),
                     Expires = DateTime.UtcNow.AddHours(3),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("1234567890123456")), SecurityAlgorithms.HmacSha256Signature)
