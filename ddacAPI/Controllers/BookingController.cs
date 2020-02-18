@@ -10,6 +10,7 @@ using ddacAPI.Data;
 using ddacAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using ddacAPI.Util;
 
 namespace ddacAPI.Controllers
 {
@@ -28,7 +29,7 @@ namespace ddacAPI.Controllers
             _context = context;
         }
 
-        // GET: api/RatingReview/ByHotel?id=2
+        // GET: api/Booking/ByHotel?id=2
         [HttpGet("ByHotel")]
         public object GetBookings(int id)
         {

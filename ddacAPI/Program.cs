@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ddacAPI.Data;
 using ddacAPI.Models;
+using ddacAPI.Util;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -28,7 +29,6 @@ namespace ddacAPI
                 var userManager = scope.ServiceProvider.GetService<UserManager<IdentityUser>>();
 
                 var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
-
 
                 if (!await roleManager.RoleExistsAsync("Admin"))
                     await roleManager.CreateAsync(new IdentityRole { Name = "Admin" });

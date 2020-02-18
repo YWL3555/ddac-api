@@ -108,7 +108,7 @@ namespace ddacAPI.Controllers
 
         // PUT: api/Hotels/publish?id=1
         [HttpPut("publish")]
-        public async Task<IActionResult> PublishHotel([FromRoute] int id)
+        public async Task<IActionResult> PublishHotel(int id)
         {
             if (!ModelState.IsValid)
             {
@@ -148,7 +148,7 @@ namespace ddacAPI.Controllers
 
         // PUT: api/Hotels/publish?id=1
         [HttpPut("unpublish")]
-        public async Task<IActionResult> UnpublishHotel([FromRoute] int id)
+        public async Task<IActionResult> UnpublishHotel(int id)
         {
             if (!ModelState.IsValid)
             {
