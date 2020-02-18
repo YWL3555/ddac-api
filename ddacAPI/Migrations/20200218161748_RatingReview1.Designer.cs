@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ddacAPI.Data;
 
 namespace ddacAPI.Migrations
 {
     [DbContext(typeof(ddacAPIContext))]
-    partial class ddacAPIContextModelSnapshot : ModelSnapshot
+    [Migration("20200218161748_RatingReview1")]
+    partial class RatingReview1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,7 +46,7 @@ namespace ddacAPI.Migrations
 
                     b.Property<bool>("Reviewed");
 
-                    b.Property<int>("RoomTypeId");
+                    b.Property<int?>("RoomTypeId");
 
                     b.Property<DateTime>("StartDate");
 
@@ -403,8 +405,7 @@ namespace ddacAPI.Migrations
 
                     b.HasOne("ddacAPI.Models.RoomType", "RoomType")
                         .WithMany()
-                        .HasForeignKey("RoomTypeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("RoomTypeId");
                 });
 
             modelBuilder.Entity("ddacAPI.Models.City", b =>
