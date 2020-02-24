@@ -12,6 +12,7 @@ using ddacAPI.Util;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
+using System.Dynamic;
 
 namespace ddacAPI.Controllers
 {
@@ -34,9 +35,9 @@ namespace ddacAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Hotels/ByCity?city=ipoh
-        [HttpGet("byCity")]
-        public IEnumerable<Hotel> GetHotelByCity(string city)
+        // GET: api/Hotels/search?city=ipoh&startdate=01/02/2020&enddate=01/02/2020
+        [HttpGet("search")]
+        public IEnumerable<Hotel> SearchHotels(string city, DateTime startdate, DateTime enddate)
         {
             var hotels = _context.Hotel.Where(h => h.Published == true);
 
@@ -45,11 +46,22 @@ namespace ddacAPI.Controllers
 
         // GET: api/Hotels
         [HttpGet]
-        public IEnumerable<Hotel> GetHotel()
+        public ICollection<ExpandoObject> GetHotel()
         {
             var hotels = _context.Hotel.Where(h => h.Published == true);
 
-            return hotels;
+            List<ExpandoObject> hList = new List<ExpandoObject>();
+
+            foreach (var hotel in hotels)
+            {
+                dynamic hotelWithRoomTypes = new ExpandoObject();
+                hotelWithRoomTypes.hotel = hotel;
+                hotelWithRoomTypes.roomTypes =  _context.RoomType.Where(r => r.HotelId == hotel.Id);
+                hotelWithRoomTypes.ratingReviews = _context.RatingReview.Where(r => r.HotelId == hotel.Id);
+                hList.Add(hotelWithRoomTypes);
+            }
+
+            return hList; 
         }
 
         // GET: api/Hotels/5
@@ -63,9 +75,13 @@ namespace ddacAPI.Controllers
 
             var hotel = await _context.Hotel.FindAsync(id);
 
-            dynamic hotelForAPI = new System.Dynamic.ExpandoObject();
+            var ratingreviews = _context.RatingReview.Include(r => r.Customer).Where(r => r.HotelId == id);
+
+            dynamic hotelForAPI = new ExpandoObject();
 
             hotelForAPI.hotel = hotel;
+
+            hotelForAPI.ratingreviews = ratingreviews;
             
             hotelForAPI.meme = "finally boiii";
 
@@ -74,10 +90,8 @@ namespace ddacAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(new { 
-                hotel,
-                hotelForAPI
-            });
+            return Ok(hotelForAPI
+            );
         }
 
         // PUT: api/Hotels/5

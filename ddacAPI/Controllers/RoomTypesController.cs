@@ -16,7 +16,7 @@ using System.IO;
 
 namespace ddacAPI.Controllers
 {
-    [Authorize(Roles = "Partner")]
+    //[Authorize(Roles = "Partner")]
     [Route("api/[controller]")]
     [ApiController]
     public class RoomTypesController : ControllerBase
@@ -41,6 +41,16 @@ namespace ddacAPI.Controllers
         public IEnumerable<RoomType> GetRoomType()
         {
             return _context.RoomType;
+        }
+
+        // GET: api/RoomTypes/ByHotel
+        [HttpGet("ByHotel")]
+        public IEnumerable<RoomType> GetRoomTypeByHotel(int id)
+        {
+
+            var roomTypes = _context.RoomType.Where(r => r.HotelId == id);
+
+            return roomTypes;
         }
 
         // GET: api/RoomTypes/5
