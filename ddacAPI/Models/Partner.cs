@@ -21,5 +21,6 @@ namespace ddacAPI.Models
         [ForeignKey("HotelId")]
         public Hotel Hotel { get; set; }
 
+        public bool status { get; set; }
     }
 }

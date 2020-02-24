@@ -65,7 +65,7 @@ namespace ddacAPI.Controllers
 
        
         // POST: api/RoomTypes
-        [HttpPost("ByHotel")]
+        [HttpPost("PostRatingReview")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> PostRatingReview(int id, [FromBody] RatingReview ratingReview)
         {

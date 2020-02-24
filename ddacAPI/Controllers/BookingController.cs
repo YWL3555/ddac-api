@@ -31,11 +31,14 @@ namespace ddacAPI.Controllers
 
         // GET: api/Booking/ByHotel?id=2
         [HttpGet("ByHotel")]
-        public object GetBookings(int id)
+        public object GetBookingsByHotel()
         {
-            var currentHotelId = id;
 
-            string customerId = User.Claims.First(c => c.Type == "UserID").Value;
+            string partnerId = User.Claims.First(c => c.Type == "UserID").Value;
+
+            var partner = _context.Partner.FindAsync(partnerId);
+
+            int currentHotelId = partner.Result.HotelId;
 
             var bookings = _context.Booking.Include(b => b.RoomType).Where(b => b.RoomType.HotelId == currentHotelId);
 
@@ -47,26 +50,23 @@ namespace ddacAPI.Controllers
             return bookings;
         }
 
-        // GET: api/Booking/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetRoomType([FromRoute] int id)
+        // GET: api/BookingByCustomer
+        [HttpGet("BookingByCustomer")]
+        public object GetBookingsByCustomer()
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            string customerId = User.Claims.First(c => c.Type == "UserID").Value;
 
-            var roomType = await _context.RoomType.FindAsync(id);
+            var bookings = _context.Booking.Include(b => b.Customer).Where(b => b.CustomerId == customerId);
 
-            if (roomType == null)
+            if (bookings == null)
             {
                 return NotFound();
             }
 
-            return Ok(roomType);
+            return bookings;
         }
 
-       
+
         // POST: api/Booking
         [HttpPost]
         [Authorize(Roles = "Customer")]
