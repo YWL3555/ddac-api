@@ -17,9 +17,7 @@ namespace ddacAPI.Util
         public static CloudStorageAccount StorageAccount { get; set; }
         public BlobManager(IConfiguration configuration)
         {
-            //init service and container client
-            //https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet#code-examples
-            //https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/storage/Azure.Storage.Blobs/samples/Sample01a_HelloWorld.cs
+            //Get connection string from configuration
             Configuration = configuration;
         }
         public async Task CreateCloudBlobContainerAsync()

@@ -47,7 +47,7 @@ namespace ddacAPI.Controllers
             return bookings;
         }
 
-        // GET: api/RatingReview/5
+        // GET: api/Booking/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRoomType([FromRoute] int id)
         {
@@ -67,7 +67,7 @@ namespace ddacAPI.Controllers
         }
 
        
-        // POST: api/RoomTypes
+        // POST: api/Booking
         [HttpPost]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> PostBooking([FromBody] Booking booking)

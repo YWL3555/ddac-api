@@ -34,6 +34,15 @@ namespace ddacAPI.Controllers
             _context = context;
         }
 
+        // GET: api/Hotels/ByCity?city=ipoh
+        [HttpGet]
+        public IEnumerable<Hotel> GetHotelByCity(string city)
+        {
+            var hotels = _context.Hotel.Where(h => h.Published == true);
+
+            return hotels;
+        }
+
         // GET: api/Hotels
         [HttpGet]
         public IEnumerable<Hotel> GetHotel()
