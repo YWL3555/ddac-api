@@ -90,16 +90,19 @@ namespace ddacAPI.Controllers
             {
                 UserName = model.Username,
                 Email = model.Email,
-                Partner = new Partner()
-                {
-                    Hotel = new Hotel()
-                    {
-                        Name = model.HotelName
-                    },
-                    partnerStatus = true
-                }
+                
 
             };
+
+            var Partner = new Partner()
+            {
+                Hotel = new Hotel()
+                {
+                    Name = model.HotelName
+                },
+                partnerStatus = true,
+                
+            }
 
             try
             {

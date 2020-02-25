@@ -233,7 +233,7 @@ namespace ddacAPI.Controllers
         {
             string customerId = User.Claims.First(c => c.Type == "UserID").Value;
 
-            var bookings = _context.Booking.Include(b => b.Customer).Where(b => b.CustomerId == customerId);
+            var bookings = _context.Booking.Include(b => b.RoomType).Include(b => b.RoomType.Hotel).Include(b => b.Customer).Where(b => b.CustomerId == customerId);
 
             if (bookings == null)
             {
