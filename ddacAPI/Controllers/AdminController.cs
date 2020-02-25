@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ddacAPI.Data;
 using ddacAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace ddacAPI.Controllers
 {
     [Route("api/[controller]")]
+    [EnableCors("MyPolicy")]
     [ApiController]
     public class AdminController : ControllerBase
     {

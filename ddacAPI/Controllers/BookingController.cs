@@ -11,10 +11,12 @@ using ddacAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using ddacAPI.Util;
+using Microsoft.AspNetCore.Cors;
 
 namespace ddacAPI.Controllers
 {
     [Route("api/[controller]")]
+    [EnableCors("MyPolicy")]
     [ApiController]
     public class BookingController : ControllerBase
     {

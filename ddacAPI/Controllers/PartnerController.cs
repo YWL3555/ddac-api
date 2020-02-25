@@ -16,10 +16,12 @@ using Microsoft.EntityFrameworkCore;
 using ddacAPI.Util;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using Microsoft.AspNetCore.Cors;
 
 namespace ddacAPI.Controllers
 {
     [Route("api/[controller]")]
+    [EnableCors("MyPolicy")]
     [ApiController]
     public class PartnerController : ControllerBase
     {

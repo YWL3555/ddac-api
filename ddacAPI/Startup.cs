@@ -52,7 +52,12 @@ namespace ddacAPI
                 options.Password.RequiredLength = 4;
             });
 
-            services.AddCors();
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
 
             //Jwt Authentication
 
@@ -95,11 +100,8 @@ namespace ddacAPI
                 app.UseHsts();
             }
 
-            app.UseCors(builder =>
-            builder.AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            );
+            app.UseCors("MyPolicy");
+
 
             app.UseHttpsRedirection();
 

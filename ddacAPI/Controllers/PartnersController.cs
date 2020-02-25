@@ -9,10 +9,12 @@ using ddacAPI.Data;
 using ddacAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Cors;
 
 namespace ddacAPI.Controllers
 {
     [Authorize(Roles = "Admin")]
+    [EnableCors("MyPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class PartnersController : ControllerBase

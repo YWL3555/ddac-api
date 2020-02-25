@@ -17,10 +17,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Web;
 using System.IO;
+using Microsoft.AspNetCore.Cors;
 
 namespace ddacAPI.Controllers
 {
     [Route("api/[controller]")]
+    [EnableCors("MyPolicy")]
     [ApiController]
     public class CustomerController : ControllerBase
     {

@@ -13,10 +13,12 @@ using Microsoft.AspNetCore.Identity;
 using ddacAPI.Util;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using Microsoft.AspNetCore.Cors;
 
 namespace ddacAPI.Controllers
 {
     //[Authorize(Roles = "Partner")]
+    [EnableCors("MyPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class RoomTypesController : ControllerBase
