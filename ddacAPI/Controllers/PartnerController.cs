@@ -48,6 +48,13 @@ namespace ddacAPI.Controllers
             {
                 //Get role assigned to the user
                 var role = await _userManager.GetRolesAsync(user);
+                foreach (string r in role)
+                {
+                    if (r != "Partner")
+                    {
+                        return Unauthorized();
+                    }
+                }
                 IdentityOptions _options = new IdentityOptions();
 
                 var tokenDescriptor = new SecurityTokenDescriptor
@@ -66,7 +73,7 @@ namespace ddacAPI.Controllers
                 return Ok(new { token });
             }
             else
-                return BadRequest(new { message = "Email or password is incorrect." });
+                return Unauthorized();
         }
 
         // GET: api/partner/roomType

@@ -67,7 +67,7 @@ namespace ddacAPI.Controllers
                 return Ok(new { token });
             }
             else
-                return BadRequest(new { message = "Email or password is incorrect." });
+                return Unauthorized();
         }
 
         //GET: /api/admin/partner

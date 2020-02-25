@@ -80,6 +80,14 @@ namespace ddacAPI.Controllers
             {
                 //Get role assigned to the user
                 var role = await _userManager.GetRolesAsync(user);
+                foreach (string r in role)
+                {
+                    if (r != "Customer")
+                    {
+                        return Unauthorized();
+                    }
+                }
+
                 IdentityOptions _options = new IdentityOptions();
 
                 var tokenDescriptor = new SecurityTokenDescriptor
@@ -95,10 +103,11 @@ namespace ddacAPI.Controllers
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var securityToken = tokenHandler.CreateToken(tokenDescriptor);
                 var token = tokenHandler.WriteToken(securityToken);
-                return Ok(new { token });
+
+                return Ok(new { token, user.UserName });
             }
             else
-                return BadRequest(new { message = "Email or password is incorrect." });
+                return Unauthorized();
         }
 
         // POST: api/customer/book
