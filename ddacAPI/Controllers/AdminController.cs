@@ -35,7 +35,7 @@ namespace ddacAPI.Controllers
 
         [HttpPost]
         [Route("login")]
-        //POST: /api/customer/login
+        //POST: /api/admin/login
         public async Task<IActionResult> Login(UserAuthModel model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -70,47 +70,136 @@ namespace ddacAPI.Controllers
                 return BadRequest(new { message = "Email or password is incorrect." });
         }
 
-        [HttpGet]
-        [Authorize(Roles ="Customer")]
-        [Route("profile")]
-        //GET: /api/customer/profile
-        public async Task<Object> GetUserProfile()
+        //GET: /api/admin/partner
+        [HttpGet("partner")]
+        [Authorize(Roles = "Admin")]
+        public IEnumerable<Partner> GetPartner()
         {
-            string userId = User.Claims.First(c => c.Type == "UserID").Value;
-            var user = await _userManager.FindByIdAsync(userId);
-            var customer = await _context.Customer.FindAsync(userId);
-            return new
-            {
-                user.Email,
-                user.UserName,
-                customer.Id,
-                customer.Name,
-                customer.ContactNumber,
-                customer.ProfilePic
-            };
+            return _context.Partner.Include(r => r.Hotel);
         }
 
-        [HttpPut]
-        [Authorize(Roles = "Customer")]
-        [Route("profile")]
-        //GET: /api/customer/profile
-        public async Task<IActionResult> EditUserProfile([FromBody] Customer customer)
+        [HttpPost("partner")]
+        //POST : /api/admin/partner
+        [Authorize(Roles = "Admin")]
+        public async Task<Object> CreatePartner(UserAuthModel model)
         {
-            
+            model.Role = "Partner";
+            var partnerToBeCreated = new ApplicationUser()
+            {
+                UserName = model.Username,
+                Email = model.Email,
+                Partner = new Partner()
+                {
+                    Hotel = new Hotel()
+                    {
+                        Name = model.HotelName
+                    },
+                    partnerStatus = true
+                }
 
+            };
+
+            try
+            {
+                var result = await _userManager.CreateAsync(partnerToBeCreated, model.Password);
+                await _userManager.AddToRoleAsync(partnerToBeCreated, model.Role);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        // PUT: api/admin/blockPartner?id=1
+        [HttpPut("blockPartner")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> BlockPartner(string id)
+        {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            string userId = User.Claims.First(c => c.Type == "UserID").Value;
-            var user = await _userManager.FindByIdAsync(userId);
+            string partnerId = id;
 
-            _context.Entry(customer).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            var partner = await _context.Partner.FindAsync(partnerId);
+
+            if ( partner == null)
+            {
+                return NotFound();
+            }
+
+            partner.partnerStatus = false;
+
+            _context.Entry(partner).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PartnerExists(partnerId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return NoContent();
-
         }
+
+        // PUT: api/admin/unblockPartner?id=1
+        [HttpPut("unblockPartner")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UnblockPartner(string id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            string partnerId = id;
+
+            var partner = await _context.Partner.FindAsync(partnerId);
+
+            if (partner == null)
+            {
+                return NotFound();
+            }
+
+            partner.partnerStatus = true;
+
+            _context.Entry(partner).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PartnerExists(partnerId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        private bool PartnerExists(string id)
+        {
+            return _context.Partner.Any(e => e.Id == id);
+        }
+
     }
 }
