@@ -80,7 +80,6 @@ namespace ddacAPI.Controllers
         [HttpGet]
         [Authorize(Roles = "Partner")]
         [Route("roomType")]
-        //GET: /api/partner/room-type
         public async Task<Object> GetRoomTypes()
         {
             string userId = User.Claims.First(c => c.Type == "UserID").Value;
